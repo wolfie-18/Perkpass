@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PERKPASS — Student Discount Hub</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;500;600&display=swap');
+
+:root{
+  --bg:#03020A;
+  --bg2:#080616;
+  --bg3:#0D0A1E;
+  --surface:#100E22;
+  --surface2:#15122A;
+  --border:#2A2450;
+  --border2:#3D3570;
+  --purple:#7B5CF5;
+  --purple2:#9D82FF;
+  --purple3:#5A3DD4;
+  --purple-glow:rgba(123,92,245,0.18);
+  --purple-glow2:rgba(123,92,245,0.08);
+  --cyan:#00E5FF;
+  --cyan-dim:rgba(0,229,255,0.12);
+  --text:#E8E3FF;
+  --text2:#9A93C4;
+  --text3:#5C5580;
+  --green:#00FFA3;
+  --green-dim:rgba(0,255,163,0.1);
+  --amber:#FFB830;
+  --amber-dim:rgba(255,184,48,0.1);
+  --red:#FF4D6A;
+  --red-dim:rgba(255,77,106,0.1);
+  --font-head:'Rajdhani',sans-serif;
+  --font-mono:'Share Tech Mono',monospace;
+  --font-body:'Exo 2',sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-body)}
+
+/* Scanline overlay */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);
+  pointer-events:none;z-index:9999
+}
+
+/* Grid bg */
+body::after{
+  content:'';position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(123,92,245,0.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(123,92,245,0.04) 1px,transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;z-index:0
+}
+
+.app{position:relative;z-index:1;min-height:100vh;padding:0}
+
+/* ── GLOW ORBS ── */
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
+.orb1{width:500px;height:500px;background:rgba(91,61,212,0.15);top:-100px;right:-100px}
+.orb2{width:400px;height:400px;background:rgba(0,229,255,0.05);bottom:-80px;left:-80px}
+
+/* ── NAV ── */
+nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 2rem;
+  border-bottom:1px solid var(--border);
+  background:rgba(3,2,10,0.85);
+  backdrop-filter:blur(20px);
+  position:sticky;top:0;z-index:100
+}
+.logo{font-family:var(--font-head);font-size:22px;font-weight:700;letter-spacing:2px;color:var(--text)}
+.logo span{color:var(--purple2)}
+.nav-right{display:flex;align-items:center;gap:1rem;font-size:13px}
+.nav-id{font-family:var(--font-mono);color:var(--purple2);font-size:12px}
+.nav-logout{background:none;border:1px solid var(--border2);color:var(--text2);padding:5px 14px;border-radius:4px;cursor:pointer;font-family:var(--font-body);font-size:12px;letter-spacing:1px}
+.nav-logout:hover{border-color:var(--purple);color:var(--purple2)}
+
+/* ── MAIN ── */
+main{max-width:900px;margin:0 auto;padding:2rem 1.5rem}
+
+/* ── ENROLL SCREEN ── */
+.enroll-wrap{
+  min-height:calc(100vh - 60px);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:2rem 1.5rem
+}
+.enroll-title{
+  font-family:var(--font-head);font-size:42px;font-weight:700;
+  letter-spacing:3px;text-align:center;margin-bottom:6px;
+  background:linear-gradient(135deg,var(--text),var(--purple2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent
+}
+.enroll-sub{color:var(--text2);text-align:center;font-size:14px;margin-bottom:2.5rem;letter-spacing:1px}
+.enroll-card{
+  width:100%;max-width:440px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:2rem;
+  position:relative;overflow:hidden
+}
+.enroll-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--purple-glow),transparent 60%);
+  pointer-events:none
+}
+.enroll-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--purple),transparent)
+}
+.field{margin-bottom:1.2rem}
+.field label{
+  display:block;font-size:11px;letter-spacing:2px;
+  color:var(--text3);margin-bottom:8px;font-family:var(--font-mono);text-transform:uppercase
+}
+.field input{
+  width:100%;padding:11px 14px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:6px;
+  color:var(--text);font-family:var(--font-mono);font-size:13px;
+  outline:none;transition:border-color .2s,box-shadow .2s
+}
+.field input:focus{border-color:var(--purple);box-shadow:0 0 0 3px var(--purple-glow)}
+.field input::placeholder{color:var(--text3)}
+
+.btn-enroll{
+  width:100%;padding:12px;
+  background:var(--purple3);
+  border:1px solid var(--purple);
+  border-radius:6px;color:#fff;
+  font-family:var(--font-head);font-size:16px;font-weight:600;letter-spacing:3px;
+  cursor:pointer;position:relative;overflow:hidden;transition:all .2s;text-transform:uppercase
+}
+.btn-enroll::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.08),transparent);
+  pointer-events:none
+}
+.btn-enroll:hover{background:var(--purple);box-shadow:0 0 24px var(--purple-glow)}
+
+.err-msg{color:var(--red);font-size:12px;margin-top:8px;font-family:var(--font-mono);display:none}
+
+/* ── JWT DISPLAY ── */
+.jwt-peek{
+  margin-top:1rem;background:var(--bg2);border:1px solid var(--border);
+  border-radius:6px;padding:10px 12px;font-family:var(--font-mono);font-size:10px;
+  color:var(--text3);word-break:break-all;display:none
+}
+.jwt-peek span.h{color:#FF79C6}
+.jwt-peek span.p{color:#50FA7B}
+.jwt-peek span.s{color:var(--purple2)}
+
+/* ── DASHBOARD ── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:1.5rem}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:1rem 1.2rem;position:relative;overflow:hidden
+}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent)}
+.stat-label{font-size:10px;letter-spacing:2px;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;margin-bottom:6px}
+.stat-val{font-family:var(--font-head);font-size:24px;font-weight:700;color:var(--text)}
+.stat-val.purple{color:var(--purple2)}
+.stat-val.green{color:var(--green)}
+.stat-val.amber{color:var(--amber)}
+
+/* Civil Score ring */
+.score-wrap{display:flex;align-items:center;gap:10px}
+.score-ring{position:relative;width:56px;height:56px}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring .num{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:12px;font-weight:600;color:var(--purple2)
+}
+
+/* ── CONTROLS ── */
+.controls{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.search-input{
+  flex:1;min-width:180px;padding:9px 14px;
+  background:var(--surface);border:1px solid var(--border);border-radius:6px;
+  color:var(--text);font-family:var(--font-mono);font-size:12px;outline:none
+}
+.search-input:focus{border-color:var(--purple)}
+.search-input::placeholder{color:var(--text3)}
+
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem}
+.filt{
+  padding:5px 13px;border:1px solid var(--border);border-radius:20px;
+  font-size:11px;cursor:pointer;background:var(--surface);color:var(--text3);
+  font-family:var(--font-mono);letter-spacing:1px;transition:all .15s
+}
+.filt:hover{border-color:var(--border2);color:var(--text2)}
+.filt.on{background:var(--purple3);border-color:var(--purple);color:#fff;box-shadow:0 0 12px var(--purple-glow)}
+
+/* ── DISCOUNT GRID ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.d-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:1.2rem;position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s;
+  cursor:default
+}
+.d-card:hover{border-color:var(--border2);box-shadow:0 0 20px var(--purple-glow2)}
+.d-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent)}
+.d-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.d-icon{
+  width:38px;height:38px;border-radius:8px;border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  background:var(--bg3)
+}
+.pill{font-size:9px;padding:3px 8px;border-radius:20px;font-family:var(--font-mono);letter-spacing:1px;font-weight:600;text-transform:uppercase}
+.pill.hot{background:rgba(255,77,106,0.15);color:var(--red);border:1px solid rgba(255,77,106,0.3)}
+.pill.new{background:rgba(0,255,163,0.1);color:var(--green);border:1px solid rgba(0,255,163,0.25)}
+.pill.purchased{background:rgba(123,92,245,0.2);color:var(--purple2);border:1px solid var(--purple)}
+
+.d-name{font-family:var(--font-head);font-size:16px;font-weight:600;letter-spacing:1px;color:var(--text);margin-bottom:2px}
+.d-cat{font-size:10px;color:var(--text3);font-family:var(--font-mono);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.d-save{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--purple2);margin-bottom:4px}
+.d-note{font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.5}
+.d-actions{display:flex;gap:8px}
+.btn-claim{
+  flex:1;padding:8px 12px;
+  background:var(--purple3);border:1px solid var(--purple);
+  border-radius:5px;color:#fff;
+  font-family:var(--font-mono);font-size:11px;letter-spacing:1px;
+  cursor:pointer;transition:all .15s;text-decoration:none;display:block;text-align:center
+}
+.btn-claim:hover{background:var(--purple);box-shadow:0 0 16px var(--purple-glow)}
+.btn-claim.done{background:rgba(0,255,163,0.1);border-color:var(--green);color:var(--green);cursor:default}
+
+/* ── SECTION TITLE ── */
+.section-title{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:3px;
+  color:var(--text3);text-transform:uppercase;margin-bottom:1rem;
+  display:flex;align-items:center;gap:10px
+}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── HISTORY PANEL ── */
+.hist-list{display:flex;flex-direction:column;gap:8px;margin-top:.5rem}
+.hist-item{
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:.8rem 1rem
+}
+.hist-icon{width:32px;height:32px;border-radius:6px;background:var(--bg3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:14px}
+.hist-info{flex:1}
+.hist-name{font-family:var(--font-head);font-size:14px;font-weight:600;color:var(--text)}
+.hist-time{font-size:10px;color:var(--text3);font-family:var(--font-mono)}
+.hist-save{font-family:var(--font-mono);font-size:12px;color:var(--green)}
+
+.empty-state{text-align:center;padding:2rem;color:var(--text3);font-family:var(--font-mono);font-size:12px}
+
+/* ── TAB NAV ── */
+.tabs{display:flex;gap:4px;margin-bottom:1.5rem;border-bottom:1px solid var(--border);padding-bottom:0}
+.tab{
+  padding:10px 18px;font-family:var(--font-mono);font-size:11px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--text3);cursor:pointer;
+  border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s
+}
+.tab:hover{color:var(--text2)}
+.tab.on{color:var(--purple2);border-bottom-color:var(--purple)}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:1000;
+  background:var(--surface2);border:1px solid var(--purple);border-radius:8px;
+  padding:12px 18px;font-family:var(--font-mono);font-size:12px;color:var(--purple2);
+  box-shadow:0 0 30px var(--purple-glow);
+  opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none
+}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* Verified badge */
+.verified{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--green-dim);border:1px solid rgba(0,255,163,0.25);
+  border-radius:4px;padding:3px 10px;
+  font-family:var(--font-mono);font-size:10px;color:var(--green);letter-spacing:1px
+}
+
+/* screen helper */
+.screen{display:none}
+.screen.active{display:block}
+</style>
+</head>
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="app">
+
+<!-- NAV (hidden until enrolled) -->
+<nav id="nav" style="display:none">
+  <div class="logo">PERK<span>PASS</span></div>
+  <div class="nav-right">
+    <span class="nav-id" id="nav-id"></span>
+    <span class="verified" id="nav-verified">&#10003; VERIFIED</span>
+    <button class="nav-logout" onclick="logout()">LOGOUT</button>
+  </div>
+</nav>
+
+<!-- ENROLL SCREEN -->
+<div class="screen active" id="screen-enroll">
+  <div class="enroll-wrap">
+    <div class="enroll-title">PERKPASS</div>
+    <div class="enroll-sub">// STUDENT DISCOUNT INTELLIGENCE HUB //</div>
+    <div class="enroll-card">
+      <div class="field">
+        <label>Full Name</label>
+        <input id="f-name" placeholder="e.g. chiku"/>
+      </div>
+      <div class="field">
+        <label>University / College</label>
+        <input id="f-uni" placeholder="e.g. Medicaps University"/>
+      </div>
+      <div class="field">
+        <label>University ID / Email</label>
+        <input id="f-id" placeholder="e.g. en23cs30xxxx"/>
+      </div>
+      <div class="field">
+        <label>Access PIN (4 digits)</label>
+        <input id="f-pin" type="password" maxlength="4" placeholder="••••"/>
+      </div>
+      <button class="btn-enroll" onclick="enroll()">INITIALIZE ACCESS</button>
+      <div class="err-msg" id="err-msg">⚠ All fields required. PIN must be 4 digits.</div>
+      <div class="jwt-peek" id="jwt-display">
+        <div style="font-size:9px;color:var(--text3);margin-bottom:4px;letter-spacing:2px">JWT TOKEN</div>
+        <span class="h" id="jwt-h"></span>.<span class="p" id="jwt-p"></span>.<span class="s" id="jwt-s"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD SCREEN -->
+<div class="screen" id="screen-dash">
+  <main>
+    <!-- Stats -->
+    <div class="stats-row" style="margin-top:1rem">
+      <div class="stat-card">
+        <div class="stat-label">Student</div>
+        <div class="stat-val" id="s-name" style="font-size:18px;letter-spacing:1px"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Platforms Claimed</div>
+        <div class="stat-val purple" id="s-claimed">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Est. Annual Savings</div>
+        <div class="stat-val green" id="s-savings">₹0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Civil Score</div>
+        <div class="score-wrap">
+          <div class="score-ring">
+            <svg width="56" height="56" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="22" fill="none" stroke="#1A1640" stroke-width="5"/>
+              <circle id="score-arc" cx="28" cy="28" r="22" fill="none" stroke="var(--purple)" stroke-width="5" stroke-linecap="round"
+                stroke-dasharray="138.2" stroke-dashoffset="138.2" style="transition:stroke-dashoffset .8s ease"/>
+            </svg>
+            <div class="num" id="score-num">0</div>
+          </div>
+          <div>
+            <div class="stat-val purple" id="s-score" style="font-size:22px">0</div>
+            <div style="font-size:9px;font-family:var(--font-mono);color:var(--text3)">/ 1000</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab on" onclick="switchTab('discounts',this)">DISCOUNTS</div>
+      <div class="tab" onclick="switchTab('history',this)">HISTORY</div>
+    </div>
+
+    <!-- DISCOUNTS TAB -->
+    <div id="tab-discounts">
+      <div class="controls">
+        <input class="search-input" id="search" placeholder="search platforms..." oninput="renderGrid()"/>
+      </div>
+      <div class="filters" id="filters"></div>
+      <div class="section-title">AVAILABLE OFFERS</div>
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <!-- HISTORY TAB -->
+    <div id="tab-history" style="display:none">
+      <div class="section-title">CLAIM HISTORY</div>
+      <div class="hist-list" id="hist-list"></div>
+    </div>
+  </main>
+</div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──
+const DISCOUNTS=[
+  {id:'spotify',name:'Spotify',cat:'Music',icon:'🎵',save:'50% OFF',note:'Premium student plan via SheerID verification',url:'https://www.spotify.com/student',savings:1200,tag:'hot'},
+  {id:'amazon',name:'Amazon Prime',cat:'Shopping',icon:'📦',save:'50% OFF',note:'6-month free trial, then half-price subscription',url:'https://www.amazon.in/prime/student',savings:750,tag:'hot'},
+  {id:'apple',name:'Apple Music',cat:'Music',icon:'🎶',save:'50% OFF',note:'Unlimited music + downloads, .edu email required',url:'https://music.apple.com/in',savings:900,tag:''},
+  {id:'youtube',name:'YouTube Premium',cat:'Streaming',icon:'▶',save:'~50% OFF',note:'Ad-free + YouTube Music + background play',url:'https://www.youtube.com/premium/student',savings:960,tag:''},
+  {id:'adobe',name:'Adobe Creative',cat:'Software',icon:'🎨',save:'65% OFF',note:'Full Creative Cloud suite — industry standard tools',url:'https://www.adobe.com/in/creativecloud/buy/students.html',savings:4200,tag:'hot'},
+  {id:'notion',name:'Notion',cat:'Productivity',icon:'📝',save:'FREE',note:'Personal Pro plan free with .edu email address',url:'https://www.notion.so/students',savings:1600,tag:'new'},
+  {id:'github',name:'GitHub',cat:'Dev Tools',icon:'⚙',save:'FREE PRO',note:'GitHub Pro + Copilot + 100+ tools via Student Pack',url:'https://education.github.com/pack',savings:3000,tag:'new'},
+  {id:'canva',name:'Canva',cat:'Design',icon:'🖼',save:'FREE PRO',note:'Canva for Education — full Pro access at no cost',url:'https://www.canva.com/education',savings:2400,tag:''},
+  {id:'microsoft',name:'Microsoft 365',cat:'Productivity',icon:'💼',save:'FREE',note:'Word, Excel, PowerPoint via .edu email — official',url:'https://www.microsoft.com/en-in/education/students',savings:3500,tag:''},
+  {id:'coursera',name:'Coursera',cat:'Learning',icon:'🎓',save:'FREE ACCESS',note:'3500+ courses through Coursera for Campus program',url:'https://www.coursera.org/campus',savings:5000,tag:'new'},
+  {id:'headspace',name:'Headspace',cat:'Wellness',icon:'🧘',save:'85% OFF',note:'Mindfulness & meditation app — student wellness plan',url:'https://www.headspace.com/studentplan',savings:1800,tag:''},
+  {id:'nyt',name:'New York Times',cat:'News',icon:'📰',save:'80% OFF',note:'Digital full access at deeply discounted student rate',url:'https://www.nytimes.com/subscription/student',savings:600,tag:''},
+];
+const CATS=['All','Music','Shopping','Streaming','Software','Productivity','Dev Tools','Design','Learning','Wellness','News'];
+const SCORE_PER_CLAIM=85;
+
+// ── STATE ──
+let state={enrolled:false,name:'',uid:'',university:'',token:'',filter:'All',claimed:[],history:[],score:0};
+
+// ── SIMPLE JWT ──
+function b64url(obj){return btoa(JSON.stringify(obj)).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_')}
+function makeJWT(payload){
+  const h=b64url({alg:'HS256',typ:'JWT'});
+  const p=b64url(payload);
+  // pseudo-sig from pin+name
+  const sig=b64url({sig:btoa(payload.uid+payload.pin).slice(0,16)});
+  return`${h}.${p}.${sig}`;
+}
+function verifyJWT(token){
+  try{
+    const[,p]=token.split('.');
+    const padded=p.replace(/-/g,'+').replace(/_/g,'/');
+    const decoded=JSON.parse(atob(padded+(padded.length%4?'==='.slice(padded.length%4):'')));
+    return decoded.exp>Date.now();
+  }catch{return false;}
+}
+
+// ── AUTH ──
+function enroll(){
+  const name=document.getElementById('f-name').value.trim();
+  const uni=document.getElementById('f-uni').value.trim();
+  const uid=document.getElementById('f-id').value.trim();
+  const pin=document.getElementById('f-pin').value.trim();
+  const err=document.getElementById('err-msg');
+  if(!name||!uni||!uid||pin.length!==4||!/^\d{4}$/.test(pin)){
+    err.style.display='block';return;
+  }
+  err.style.display='none';
+  const payload={sub:uid,name,university:uni,pin:btoa(pin),iat:Date.now(),exp:Date.now()+86400000*30,iss:'UniPerks'};
+  const token=makeJWT(payload);
+
+  // Show JWT briefly
+  const parts=token.split('.');
+  document.getElementById('jwt-h').textContent=parts[0];
+  document.getElementById('jwt-p').textContent=parts[1];
+  document.getElementById('jwt-s').textContent=parts[2];
+  document.getElementById('jwt-display').style.display='block';
+
+  // Load saved state
+  const saved=localStorage.getItem('uniperks_'+uid);
+  if(saved){
+    const parsed=JSON.parse(saved);
+    state={...state,...parsed,name,uid,university:uni,token,enrolled:true};
+  } else {
+    state={...state,name,uid,university:uni,token,enrolled:true,claimed:[],history:[],score:300};
+  }
+
+  setTimeout(()=>{
+    document.getElementById('screen-enroll').classList.remove('active');
+    document.getElementById('screen-dash').classList.add('active');
+    document.getElementById('nav').style.display='flex';
+    document.getElementById('nav-id').textContent='UID: '+uid;
+    document.getElementById('s-name').textContent=name.split(' ')[0].toUpperCase();
+    renderFilters();renderGrid();updateStats();renderHistory();
+  },900);
+}
+
+function logout(){
+  saveState();
+  state={enrolled:false,name:'',uid:'',university:'',token:'',filter:'All',claimed:[],history:[],score:0};
+  document.getElementById('screen-dash').classList.remove('active');
+  document.getElementById('screen-enroll').classList.add('active');
+  document.getElementById('nav').style.display='none';
+  document.getElementById('jwt-display').style.display='none';
+  ['f-name','f-uni','f-id','f-pin'].forEach(id=>document.getElementById(id).value='');
+}
+
+function saveState(){
+  if(state.uid) localStorage.setItem('uniperks_'+state.uid,JSON.stringify({claimed:state.claimed,history:state.history,score:state.score}));
+}
+
+// ── CLAIM ──
+function claim(id){
+  if(state.claimed.includes(id))return;
+  if(!verifyJWT(state.token)){toast('⚠ Session expired. Please re-login.');return;}
+  const d=DISCOUNTS.find(x=>x.id===id);
+  state.claimed.push(id);
+  state.score=Math.min(1000,state.score+SCORE_PER_CLAIM);
+  state.history.unshift({id,name:d.name,icon:d.icon,save:d.save,savings:d.savings,ts:Date.now()});
+  saveState();
+  updateStats();renderGrid();renderHistory();
+  toast(`✓ ${d.name} claimed! +${SCORE_PER_CLAIM} civil score`);
+  window.open(d.url,'_blank');
+}
+
+// ── RENDER ──
+function renderFilters(){
+  const el=document.getElementById('filters');
+  el.innerHTML=CATS.map(c=>`<div class="filt${state.filter===c?' on':''}" onclick="setFilter('${c}')">${c}</div>`).join('');
+}
+
+function setFilter(f){state.filter=f;renderFilters();renderGrid();}
+
+function renderGrid(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const filtered=DISCOUNTS.filter(d=>{
+    const mc=state.filter==='All'||d.cat===state.filter;
+    const ms=d.name.toLowerCase().includes(q)||d.cat.toLowerCase().includes(q);
+    return mc&&ms;
+  });
+  const el=document.getElementById('grid');
+  if(!filtered.length){el.innerHTML='<div class="empty-state">// NO PLATFORMS FOUND //</div>';return;}
+  el.innerHTML=filtered.map(d=>{
+    const bought=state.claimed.includes(d.id);
+    const pillTag=bought?'<span class="pill purchased">CLAIMED</span>':d.tag?`<span class="pill ${d.tag}">${d.tag==='hot'?'POPULAR':'NEW'}</span>`:'';
+    return`<div class="d-card">
+      <div class="d-top">
+        <div class="d-icon">${d.icon}</div>
+        ${pillTag}
+      </div>
+      <div class="d-name">${d.name}</div>
+      <div class="d-cat">${d.cat}</div>
+      <div class="d-save">${d.save}</div>
+      <div class="d-note">${d.note}</div>
+      <div class="d-actions">
+        ${bought
+          ? `<div class="btn-claim done">✓ CLAIMED</div>`
+          : `<button class="btn-claim" onclick="claim('${d.id}')">CLAIM OFFER →</button>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateStats(){
+  const totalSavings=state.history.reduce((a,h)=>a+h.savings,0);
+  document.getElementById('s-claimed').textContent=state.claimed.length;
+  document.getElementById('s-savings').textContent='₹'+totalSavings.toLocaleString('en-IN');
+  document.getElementById('s-score').textContent=state.score;
+  document.getElementById('score-num').textContent=state.score;
+  // Arc
+  const pct=state.score/1000;
+  const circ=138.2;
+  document.getElementById('score-arc').style.strokeDashoffset=circ-(circ*pct);
+  const col=state.score>700?'var(--green)':state.score>400?'var(--amber)':'var(--purple)';
+  document.getElementById('score-arc').style.stroke=col;
+}
+
+function renderHistory(){
+  const el=document.getElementById('hist-list');
+  if(!state.history.length){
+    el.innerHTML='<div class="empty-state">// NO CLAIMS YET — EXPLORE DISCOUNTS //</div>';return;
+  }
+  el.innerHTML=state.history.map(h=>{
+    const d=new Date(h.ts);
+    const ts=d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'})+' '+d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    return`<div class="hist-item">
+      <div class="hist-icon">${h.icon}</div>
+      <div class="hist-info">
+        <div class="hist-name">${h.name}</div>
+        <div class="hist-time">${ts} &nbsp;·&nbsp; ${h.save}</div>
+      </div>
+      <div class="hist-save">+₹${h.savings.toLocaleString('en-IN')}</div>
+    </div>`;
+  }).join('');
+}
+
+function switchTab(tab, el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('tab-discounts').style.display=tab==='discounts'?'block':'none';
+  document.getElementById('tab-history').style.display=tab==='history'?'block':'none';
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
